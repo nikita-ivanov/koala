@@ -1,0 +1,4 @@
+onnxruntime
+streamlit
+numpy
+tokenizers
