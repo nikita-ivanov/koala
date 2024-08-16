@@ -17,3 +17,5 @@ The model is tiny by current standards. It contains 10M parameters and its weigh
 Therefore, translations might not be accurate. It works best with short sentences.
 The source code for training the model can be found [here](https://github.com/nikita-ivanov/neural_translation/blob/main/translator_transformer.ipynb).
 """)
+
+st.page_link("home.py", icon="🏠")
