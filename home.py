@@ -1,11 +1,14 @@
 import streamlit as st
 
-st.set_page_config(page_title="Koala", page_icon="🐨")
+st.set_page_config(page_title="Koala",
+                   page_icon="🐨",
+                   menu_items={"Get help": "https://github.com/nikita-ivanov/koala/issues"})
 
 st.markdown("""
 ## Welcome 🐨
 Welcome to my personal webpage.
 It is meant to showcase some of the projects I've been working on.
+The source code for this webapp can found [here](https://github.com/nikita-ivanov/koala).
 
 ## Privacy
 No personal data is stored by this website. There are no cookies or logs.
