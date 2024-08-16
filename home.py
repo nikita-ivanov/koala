@@ -1,5 +1,7 @@
 import streamlit as st
 
+st.set_page_config(page_title="Koala", page_icon="🐨")
+
 st.markdown("""
 ## Welcome 🐨
 Welcome to my personal webpage.
