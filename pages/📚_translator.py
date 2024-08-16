@@ -2,6 +2,9 @@ import streamlit as st
 
 from utils import translate
 
+st.set_page_config(page_title="Translator",
+                   page_icon="📚")
+
 st.header("Translator")
 
 input_text = st.text_area("Input (German)", key="input", value="Hallo Welt, wie geht es?")

@@ -2,7 +2,8 @@ import streamlit as st
 
 st.set_page_config(page_title="Koala",
                    page_icon="🐨",
-                   menu_items={"Get help": "https://github.com/nikita-ivanov/koala/issues"})
+                   menu_items={"Report a bug": "https://github.com/nikita-ivanov/koala/issues",
+                               "About": "Personal webpage"})
 
 st.markdown("""
 ## Welcome 🐨
