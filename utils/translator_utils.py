@@ -41,7 +41,7 @@ def translate(src_sentence: str,
 
         # shape (1, 128, 8000) -> (batch_size, seq_length, tgt_vocab_size)
         model_outputs = ort_session.run(None, {"l_src_": input_ids,
-                                         "l_tgt_": tgt_ids})[0]
+                                        "l_tgt_": tgt_ids})[0]
 
         # we take the best prediction for step t only (generating autoregressivly)
         prediction = model_outputs[0, t].argmax()  # type: int
