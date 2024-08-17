@@ -4,12 +4,10 @@ from tokenizers import Tokenizer
 
 BASE_DIR = "utils/assets"
 
-
 model_path = f"{BASE_DIR}/translator_transformer_v4_2_layers.onnx"
 
 ort_session = onnxruntime.InferenceSession(model_path,
                                            providers=["CPUExecutionProvider"])
-
 
 ort_inputs_info = ort_session.get_inputs()
 src_seq_length = ort_inputs_info[0].shape[1]
