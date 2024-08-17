@@ -7,15 +7,6 @@ select = [
 ]
 
 ignore = [
-    #### modules
-    "ANN", # flake8-annotations
-    # "COM", # flake8-commas
-    # "C90", # mccabe complexity
-    "DJ",  # django
-    "EXE", # flake8-executable
-    "T10", # debugger
-    "TID", # flake8-tidy-imports
-
     #### specific rules
     "D100",   # ignore missing docs
     "D101",
@@ -36,7 +27,6 @@ ignore = [
     "TD002",
     "TD003",
     "FIX002", # too verbose descriptions of todos
-    "T201",  # print statements
     "PLR0913",  # too many arguments in functions definition
     "ANN204",  # return type of magic methods
     "RET504",  # unnecessary assigment of return variable
