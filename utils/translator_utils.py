@@ -27,7 +27,7 @@ def translate(src_sentence: str,
     We pass one token at a time, i.e. generating autoregressively
     using model's own outputs as inputs.
     """
-    input_ids = src_lang.encode(src_sentence).ids
+    input_ids = src_lang.encode(src_sentence).ids[:src_seq_length]
     input_ids = np.pad(input_ids, (0, src_seq_length - len(input_ids)),
                        constant_values=src_lang.token_to_id("<PAD>"))
 
