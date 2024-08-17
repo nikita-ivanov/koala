@@ -12,7 +12,7 @@ It is meant to showcase some of the projects I've been working on.
 The source code for this webapp can be found [here](https://github.com/nikita-ivanov/koala).
 
 ## Privacy
-No personal data is stored by this website. There are no cookies or logs.
+No personal or any other kind of data is stored. There are no cookies or logs.
 
 ## Projects
 You can find currently available projects at the left sidebar.
