@@ -13,6 +13,72 @@ views of any other institution.
 
 Financial planner lets you estimate how much you should invest for a comfortable retirement.
 Given your input data, it will simulate a profolio value until end of your retirement.
+Check out description  and methodology section below.
+""")
+
+column_1, column_2 = st.columns(2)
+
+with column_1:
+    start_value = st.slider(label="Start amount",
+                            min_value=0,
+                            max_value=100_000,
+                            value=10_000,
+                            step=5_000,
+                            help="Initial amount of investment (now)")
+
+with column_2:
+    yearly_installment = st.slider(label="Yearly installment",
+                                   min_value=0,
+                                   max_value=100_000,
+                                   value=10_000,
+                                   step=5_000,
+                                   help="Additional investment every year (before retirement)")
+
+with column_1:
+    yearly_withdrawl = st.slider(label="Yearly withdrawl",
+                                 min_value=0,
+                                 max_value=200_000,
+                                 value=50_000,
+                                 step=5_000,
+                                 help="Yearly withdrawls from the account (after retirement)")
+
+with column_2:
+    years_before_retire = st.slider(label="Years before retirement",
+                                    min_value=0,
+                                    max_value=70,
+                                    value=30,
+                                    step=1,
+                                    help="In how many years do you plan to retire")
+
+with column_1:
+    years_after_retire = st.slider(label="Years after retirement",
+                            min_value=0,
+                            max_value=50,
+                            value=20,
+                            step=1,
+                            help="How many years you plan to spend in retirement")
+
+portfolio_stats = compute_portfolio_stats(start_value=start_value,
+                                          years_before_ret=years_before_retire,
+                                          years_after_ret=years_after_retire,
+                                          yearly_installment=yearly_installment,
+                                          yearly_withdrawls=yearly_withdrawl,
+                                          num_scenarios=100_000,
+                                          start_date="1945-12-31")
+
+columns_to_plot = ["Mean", "Median"]
+st.line_chart(portfolio_stats[columns_to_plot], x_label="Years from now", y_label="Portfolio value")
+
+if st.checkbox("Show invested / withdrawn data (chart)"):
+    columns_to_plot = ["Total invested", "Total withdrawn",
+                       "Total mean return", "Total median return"]
+    st.line_chart(portfolio_stats[columns_to_plot], x_label="Years from now", y_label="Amount")
+
+if st.checkbox("Show all data (table)"):
+    st.dataframe(portfolio_stats)
+
+st.markdown("""
+### Description and methodology
 
 At the first stage (before retirement) it is assumed that you invest constant amount of money.
 At the second stage (after retirement) it is assumed that you only withdraw from your investment account.
@@ -39,52 +105,3 @@ Even better, you should check 25th (or 5th) percentiles which are available in t
 5th percentile is Value at Risk 5%.
 You can interpret it as a portfolio value is bad long term market environment.
 """)
-
-start_value = st.sidebar.slider(label="Start amount",
-                        min_value=0,
-                        max_value=100_000,
-                        value=10_000,
-                        step=5_000,
-                        help="Initial amount of investment (now)")
-
-yearly_installment = st.sidebar.slider(label="Yearly installment",
-                        min_value=0,
-                        max_value=100_000,
-                        value=10_000,
-                        step=5_000)
-
-yearly_withdrawl = st.sidebar.slider(label="Yearly withdrawl",
-                        min_value=0,
-                        max_value=200_000,
-                        value=50_000,
-                        step=5_000)
-years_before_retire = st.sidebar.slider(label="Years before retirement",
-                        min_value=0,
-                        max_value=70,
-                        value=30,
-                        step=1)
-
-years_after_retire = st.sidebar.slider(label="Years after retirement",
-                        min_value=0,
-                        max_value=50,
-                        value=20,
-                        step=1)
-
-portfolio_stats = compute_portfolio_stats(start_value=start_value,
-                             years_before_ret=years_before_retire,
-                             years_after_ret=years_after_retire,
-                             yearly_installment=yearly_installment,
-                             yearly_withdrawls=yearly_withdrawl,
-                             num_scenarios=100_000,
-                             start_date="1945-12-31")
-
-columns_to_plot = ["Mean", "Median"]
-st.line_chart(portfolio_stats[columns_to_plot], x_label="Years from now", y_label="Portfolio value")
-
-if st.checkbox("Show invested / withdrawn data (chart)"):
-    columns_to_plot = ["Total invested", "Total withdrawn",
-                       "Total mean return", "Total median return"]
-    st.line_chart(portfolio_stats[columns_to_plot], x_label="Years from now", y_label="Amount")
-
-if st.checkbox("Show all data (table)"):
-    st.dataframe(portfolio_stats)
