@@ -69,6 +69,9 @@ portfolio_stats = compute_portfolio_stats(start_value=start_value,
 columns_to_plot = ["Mean", "Median"]
 st.line_chart(portfolio_stats[columns_to_plot], x_label="Years from now", y_label="Portfolio value")
 
+terminal_median_value = portfolio_stats["Median"].iloc[-1]
+st.text(f"Terminal median portfolio value: {terminal_median_value:.1f}")
+
 if st.checkbox("Show invested / withdrawn data (chart)"):
     columns_to_plot = ["Total invested", "Total withdrawn",
                        "Total mean return", "Total median return"]
