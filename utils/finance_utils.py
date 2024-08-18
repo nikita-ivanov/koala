@@ -57,6 +57,7 @@ def simulate(start_value: float, years_before_ret: int, years_after_ret: int,
             metadata["Withdrawn per year"].append(yearly_withdrawls)
 
     portfolio_values = pd.DataFrame(portfolio_values)
+    portfolio_values.index.name = "Year"
 
     return portfolio_values, metadata
 
