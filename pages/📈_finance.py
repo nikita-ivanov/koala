@@ -26,7 +26,7 @@ with column_1:
                             step=5_000,
                             help="Initial amount of investment (now)")
 
-with column_2:
+with column_1:
     yearly_installment = st.slider(label="Yearly installment",
                                    min_value=0,
                                    max_value=100_000,
@@ -50,7 +50,7 @@ with column_2:
                                     step=1,
                                     help="In how many years do you plan to retire")
 
-with column_1:
+with column_2:
     years_after_retire = st.slider(label="Years after retirement",
                             min_value=0,
                             max_value=50,
