@@ -2,11 +2,8 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-path = "utils/assets/real_sp_yearly_returns.csv"
-hist_returns = pd.read_csv(path, index_col="Date")["0"]
 
-
-def sample(array: np.ndarray | pd.Series, num_samples: int = 1) -> np.array:
+def sample(array: np.ndarray | pd.Series, num_samples: int = 1) -> np.ndarray:
     if isinstance(array, pd.Series):
         array = array.to_numpy()
 
@@ -14,21 +11,45 @@ def sample(array: np.ndarray | pd.Series, num_samples: int = 1) -> np.array:
 
 def sim_payoff_bootstrapped(hist_returns: pd.Series,
                             num_scenarios: int,
-                            start_value: float) -> np.ndarray:
+                            start_value: float,
+                            mean: float,
+                            volatility: float,
+                            leverage: float) -> np.ndarray:
     """
     Simulate next period portfolio increase assuming returns are i.i.d.
     """
     returns = sample(array=hist_returns, num_samples=num_scenarios)
+
+    # scale to mean 0, variance 1
+    returns -= returns.mean(keepdims=True)
+    returns /= returns.std(keepdims=True)
+
+    # adjust to target mean and volatility
+    returns *= volatility
+    returns += mean
+
+    # make sure that there are no returns lower than -100%
+    # i.e. we cannot lose more than we had
+    returns = np.clip(returns, a_min=-1.0, a_max=None)
+
+    # note that leverage can actually push return below -100%
+    returns *= leverage
+
     return start_value * returns
 
-def simulate(start_value: float, years_before_ret: int, years_after_ret: int,
-             yearly_installment: float, yearly_withdrawls: float,
-             num_scenarios: int, start_date: str) -> pd.DataFrame:
+def simulate(hist_values: pd.Series,
+             start_value: float,
+             years_before_ret: int,
+             years_after_ret: int,
+             yearly_installment: float,
+             yearly_withdrawls: float,
+             num_scenarios: int,
+             mean: float,
+             volatility: float,
+             leverage: float) -> pd.DataFrame:
     num_years = years_before_ret + years_after_ret
     portfolio_values = np.zeros((num_years + 1, num_scenarios))
     portfolio_values[0, :] = start_value
-
-    hist_values = hist_returns.loc[start_date:]
 
     metadata = {
         "Invested per year": [0.0],
@@ -38,9 +59,12 @@ def simulate(start_value: float, years_before_ret: int, years_after_ret: int,
     }
 
     for t in range(1, num_years + 1):
-        portfolio_growth = sim_payoff_bootstrapped(hist_values,
-                                                   num_scenarios,
-                                                   portfolio_values[t - 1, :])
+        portfolio_growth = sim_payoff_bootstrapped(hist_returns=hist_values,
+                                                   num_scenarios=num_scenarios,
+                                                   start_value=portfolio_values[t - 1, :],
+                                                   mean=mean,
+                                                   volatility=volatility,
+                                                   leverage=leverage)
 
         metadata["Mean earnings per year"].append(np.mean(portfolio_growth))
         metadata["Median earnings per year"].append(np.median(portfolio_growth))
@@ -62,17 +86,27 @@ def simulate(start_value: float, years_before_ret: int, years_after_ret: int,
     return portfolio_values, metadata
 
 @st.cache_data
-def compute_portfolio_stats(start_value: float, years_before_ret: int, years_after_ret: int,
-                            yearly_installment: float, yearly_withdrawls: float,
-                            num_scenarios: int, start_date: str) -> pd.DataFrame:
+def compute_portfolio_stats(hist_values: pd.Series,
+                            start_value: float,
+                            years_before_ret: int,
+                            years_after_ret: int,
+                            yearly_installment: float,
+                            yearly_withdrawls: float,
+                            num_scenarios: int,
+                            mean: float,
+                            volatility: float,
+                            leverage: float) -> pd.DataFrame:
 
-    scenarios, metadata = simulate(start_value=start_value,
+    scenarios, metadata = simulate(hist_values=hist_values,
+                                   start_value=start_value,
                                    years_before_ret=years_before_ret,
                                    years_after_ret=years_after_ret,
                                    yearly_installment=yearly_installment,
                                    yearly_withdrawls=yearly_withdrawls,
                                    num_scenarios=num_scenarios,
-                                   start_date=start_date)
+                                   mean=mean,
+                                   volatility=volatility,
+                                   leverage=leverage)
 
     stats = pd.DataFrame({
         "Mean": scenarios.mean(axis=1),

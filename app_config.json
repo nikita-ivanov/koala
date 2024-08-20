@@ -1,0 +1,6 @@
+{
+    "hist_returns_path": "assets/real_sp_yearly_returns.csv",
+    "translator_model_path": "assets/translator_transformer_v4_2_layers.onnx",
+    "de_tokenizer_path": "assets/de_tokenizer",
+    "en_tokenizer_path": "assets/en_tokenizer"
+}

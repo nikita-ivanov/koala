@@ -1,6 +1,8 @@
 import streamlit as st
 
-from utils import translate
+from tools import load_config, translate
+
+config = load_config()
 
 st.set_page_config(page_title="Translator",
                    page_icon="📚")

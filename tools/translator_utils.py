@@ -2,11 +2,14 @@ import numpy as np
 import onnxruntime
 from tokenizers import Tokenizer
 
+from .configuration import load_config
+
 BASE_DIR = "utils/assets"
+config = load_config()
 
 model_path = f"{BASE_DIR}/translator_transformer_v4_2_layers.onnx"
 
-ort_session = onnxruntime.InferenceSession(model_path,
+ort_session = onnxruntime.InferenceSession(config.translator_model_path,
                                            providers=["CPUExecutionProvider"])
 
 ort_inputs_info = ort_session.get_inputs()
@@ -14,8 +17,8 @@ src_seq_length = ort_inputs_info[0].shape[1]
 tgt_seq_length = ort_inputs_info[1].shape[1]
 
 # we need our tokenizers which original model used for training
-src_lang = Tokenizer.from_file(f"{BASE_DIR}/de_tokenizer")
-tgt_lang = Tokenizer.from_file(f"{BASE_DIR}/en_tokenizer")
+src_lang = Tokenizer.from_file(config.de_tokenizer_path)
+tgt_lang = Tokenizer.from_file(config.en_tokenizer_path)
 
 
 def translate(src_sentence: str,

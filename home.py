@@ -16,8 +16,8 @@ No personal or any other kind of data is stored. There are no cookies or logs.
 
 ## Projects
 You can find currently available projects at the left sidebar.
-- <a href='translator' target='_self'>Translator</a>
-- <a href='finance' target='_self'>Financial Planner</a>
+- <a href='finance' target='_self'>Financial Planner 📈</a>
+- <a href='translator' target='_self'>Translator 📚</a>
 
 ## Contact
 - [GitHub](https://github.com/nikita-ivanov/koala)

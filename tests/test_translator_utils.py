@@ -1,4 +1,4 @@
-from utils import translate
+from tools import translate
 
 
 def test_translate():
