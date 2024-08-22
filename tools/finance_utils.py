@@ -13,8 +13,7 @@ def sim_payoff_bootstrapped(hist_returns: pd.Series,
                             num_scenarios: int,
                             start_value: float,
                             mean: float,
-                            volatility: float,
-                            leverage: float) -> np.ndarray:
+                            volatility: float) -> np.ndarray:
     """
     Simulate next period portfolio increase assuming returns are i.i.d.
     """
@@ -32,9 +31,6 @@ def sim_payoff_bootstrapped(hist_returns: pd.Series,
     # i.e. we cannot lose more than we had
     returns = np.clip(returns, a_min=-1.0, a_max=None)
 
-    # note that leverage can actually push return below -100%
-    returns *= leverage
-
     return start_value * returns
 
 def simulate(hist_values: pd.Series,
@@ -45,8 +41,7 @@ def simulate(hist_values: pd.Series,
              yearly_withdrawls: float,
              num_scenarios: int,
              mean: float,
-             volatility: float,
-             leverage: float) -> pd.DataFrame:
+             volatility: float) -> pd.DataFrame:
     num_years = years_before_ret + years_after_ret
     portfolio_values = np.zeros((num_years + 1, num_scenarios))
     portfolio_values[0, :] = start_value
@@ -63,15 +58,14 @@ def simulate(hist_values: pd.Series,
                                                    num_scenarios=num_scenarios,
                                                    start_value=portfolio_values[t - 1, :],
                                                    mean=mean,
-                                                   volatility=volatility,
-                                                   leverage=leverage)
+                                                   volatility=volatility)
 
         metadata["Mean earnings per year"].append(np.mean(portfolio_growth))
         metadata["Median earnings per year"].append(np.median(portfolio_growth))
 
         portfolio_values[t, :] = portfolio_values[t - 1, :] + portfolio_growth
 
-        if t < years_before_ret:
+        if t <= years_before_ret:
             portfolio_values[t, :] += yearly_installment
             metadata["Invested per year"].append(yearly_installment)
             metadata["Withdrawn per year"].append(0.0)
@@ -94,8 +88,7 @@ def compute_portfolio_stats(hist_values: pd.Series,
                             yearly_withdrawls: float,
                             num_scenarios: int,
                             mean: float,
-                            volatility: float,
-                            leverage: float) -> pd.DataFrame:
+                            volatility: float) -> pd.DataFrame:
 
     scenarios, metadata = simulate(hist_values=hist_values,
                                    start_value=start_value,
@@ -105,8 +98,7 @@ def compute_portfolio_stats(hist_values: pd.Series,
                                    yearly_withdrawls=yearly_withdrawls,
                                    num_scenarios=num_scenarios,
                                    mean=mean,
-                                   volatility=volatility,
-                                   leverage=leverage)
+                                   volatility=volatility)
 
     stats = pd.DataFrame({
         "Mean": scenarios.mean(axis=1),

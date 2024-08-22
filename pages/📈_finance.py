@@ -1,7 +1,11 @@
 import pandas as pd
 import streamlit as st
 
-from charting import get_hist_plot, get_invested_withdrawn_plot, get_stats_plot
+from charting import (
+    get_hist_figure,
+    get_invested_withdrawn_figure,
+    get_stats_figure,
+)
 from tools import HistoricalData, compute_portfolio_stats, load_config
 
 config = load_config()
@@ -73,7 +77,7 @@ hist_data = HistoricalData(config.hist_returns_path, start_date.isoformat())
 
 # TODO: remove leverage
 with st.expander("Advanced settings"):
-    adv_col_1, adv_col_2, adv_col_3 = st.columns(3)
+    adv_col_1, adv_col_2 = st.columns(2)
     with adv_col_1:
         mean = st.number_input("Mean",
                                value=hist_data.mean,
@@ -87,13 +91,6 @@ with st.expander("Advanced settings"):
                                      format="%0.3f",
                                      step=0.01,
                                      help="Volatility of yearly returns")
-    with adv_col_3:
-        leverage = st.slider("Leverage",
-                                   min_value=1.0,
-                                   max_value=3.0,
-                                   value=1.0,
-                                   step=1.0,
-                                   help="Portfolio leverage. Please note that leverage is associated with very high risks. Leverage costs are not taken into account.")
 
 portfolio_stats = compute_portfolio_stats(hist_values=hist_data.series,
                                           start_value=start_value,
@@ -103,13 +100,13 @@ portfolio_stats = compute_portfolio_stats(hist_values=hist_data.series,
                                           yearly_withdrawls=yearly_withdrawl,
                                           num_scenarios=100_000,
                                           mean=mean,
-                                          volatility=volatility,
-                                          leverage=leverage)
+                                          volatility=volatility)
 
 show_mean = st.checkbox("Show mean")
 
-st.plotly_chart(get_stats_plot(portfolio_stats, show_mean))
-st.plotly_chart(get_invested_withdrawn_plot(portfolio_stats))
+st.plotly_chart(get_stats_figure(portfolio_stats, show_mean))
+
+st.plotly_chart(get_invested_withdrawn_figure(portfolio_stats))
 
 stat_columns_dict = {
     "Median": "Median",
@@ -121,7 +118,7 @@ df_last_timestep.name = "Last year"
 st.dataframe(df_last_timestep)
 
 if st.checkbox("Show hist data (chart)"):
-    st.plotly_chart(get_hist_plot(hist_data.series))
+    st.plotly_chart(get_hist_figure(hist_data.series))
 
 if st.checkbox("Show hist data stats"):
     hist_stats = pd.Series({
