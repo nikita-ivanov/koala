@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 
-def get_stats_plot(portfolio_stats: pd.DataFrame, show_mean: bool = False) -> go.Figure:
+def get_stats_figure(portfolio_stats: pd.DataFrame, show_mean: bool = False) -> go.Figure:
     fig = go.Figure()
 
     x_axis_shade_area = portfolio_stats.index.to_list()
@@ -40,7 +40,7 @@ def get_stats_plot(portfolio_stats: pd.DataFrame, show_mean: bool = False) -> go
 
     return fig
 
-def get_hist_plot(hist_series: pd.Series) -> go.Figure:
+def get_hist_figure(hist_series: pd.Series) -> go.Figure:
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(x=hist_series.index,
@@ -53,7 +53,7 @@ def get_hist_plot(hist_series: pd.Series) -> go.Figure:
 
     return fig
 
-def get_invested_withdrawn_plot(portfolio_stats: pd.DataFrame) -> go.Figure:
+def get_invested_withdrawn_figure(portfolio_stats: pd.DataFrame) -> go.Figure:
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(x=portfolio_stats.index,
@@ -71,5 +71,10 @@ def get_invested_withdrawn_plot(portfolio_stats: pd.DataFrame) -> go.Figure:
                             "y": 0.99,
                             "xanchor": "left",
                             "x": 0.01})
+
+    return fig
+
+def get_portfolio_dist_plot(portfolio_values: pd.Series) -> go.Figure:
+    fig = go.Figure(data=[go.Histogram(portfolio_values.values)])
 
     return fig
