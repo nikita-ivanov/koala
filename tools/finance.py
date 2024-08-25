@@ -4,16 +4,19 @@ import streamlit as st
 
 
 def sample(array: np.ndarray | pd.Series, num_samples: int = 1) -> np.ndarray:
+    """
+    Randomly sample values from an array.
+    """
     if isinstance(array, pd.Series):
         array = array.to_numpy()
 
     return np.random.default_rng().choice(array, size=num_samples)
 
-def sim_payoff_bootstrapped(hist_returns: pd.Series,
-                            num_scenarios: int,
-                            start_value: float,
-                            mean: float,
-                            volatility: float) -> np.ndarray:
+def simulate_payoffs(hist_returns: pd.Series,
+                     num_scenarios: int,
+                     start_value: float,
+                     mean: float,
+                     volatility: float) -> np.ndarray:
     """
     Simulate next period portfolio increase assuming returns are i.i.d.
     """
@@ -33,15 +36,22 @@ def sim_payoff_bootstrapped(hist_returns: pd.Series,
 
     return start_value * returns
 
-def simulate(hist_values: pd.Series,
-             start_value: float,
-             years_before_ret: int,
-             years_after_ret: int,
-             yearly_installment: float,
-             yearly_withdrawls: float,
-             num_scenarios: int,
-             mean: float,
-             volatility: float) -> pd.DataFrame:
+def simulate_portfolio_values(hist_values: pd.Series,
+                              start_value: float,
+                              years_before_ret: int,
+                              years_after_ret: int,
+                              yearly_installment: float,
+                              yearly_withdrawls: float,
+                              num_scenarios: int,
+                              mean: float,
+                              volatility: float) -> tuple[pd.DataFrame, dict[str, list[float]]]:
+    """
+    Simulate portfolio value V(t).
+    If t <= years_before_ret, then V(t) = V(t-1) * (1 + r(t)) + yearly_installment.
+    If t > years_before_ret, then V(t-1) * (1 + r(t)) - yearly_withdrawl.
+    In words, we invest fixed amount each year before retirement.
+    Once retired, we only withdraw from our account (but still earn interest).
+    """
     num_years = years_before_ret + years_after_ret
     portfolio_values = np.zeros((num_years + 1, num_scenarios))
     portfolio_values[0, :] = start_value
@@ -54,7 +64,7 @@ def simulate(hist_values: pd.Series,
     }
 
     for t in range(1, num_years + 1):
-        portfolio_growth = sim_payoff_bootstrapped(hist_returns=hist_values,
+        portfolio_growth = simulate_payoffs(hist_returns=hist_values,
                                                    num_scenarios=num_scenarios,
                                                    start_value=portfolio_values[t - 1, :],
                                                    mean=mean,
@@ -80,25 +90,27 @@ def simulate(hist_values: pd.Series,
     return portfolio_values, metadata
 
 @st.cache_data
-def compute_portfolio_stats(hist_values: pd.Series,
-                            start_value: float,
-                            years_before_ret: int,
-                            years_after_ret: int,
-                            yearly_installment: float,
-                            yearly_withdrawls: float,
-                            num_scenarios: int,
-                            mean: float,
-                            volatility: float) -> pd.DataFrame:
-
-    scenarios, metadata = simulate(hist_values=hist_values,
-                                   start_value=start_value,
-                                   years_before_ret=years_before_ret,
-                                   years_after_ret=years_after_ret,
-                                   yearly_installment=yearly_installment,
-                                   yearly_withdrawls=yearly_withdrawls,
-                                   num_scenarios=num_scenarios,
-                                   mean=mean,
-                                   volatility=volatility)
+def simulate_and_stats(hist_values: pd.Series,
+                       start_value: float,
+                       years_before_ret: int,
+                       years_after_ret: int,
+                       yearly_installment: float,
+                       yearly_withdrawls: float,
+                       num_scenarios: int,
+                       mean: float,
+                       volatility: float) -> pd.DataFrame:
+    """
+    Simulate portfolio values and compute statistics on them.
+    """
+    scenarios, metadata = simulate_portfolio_values(hist_values=hist_values,
+                                                    start_value=start_value,
+                                                    years_before_ret=years_before_ret,
+                                                    years_after_ret=years_after_ret,
+                                                    yearly_installment=yearly_installment,
+                                                    yearly_withdrawls=yearly_withdrawls,
+                                                    num_scenarios=num_scenarios,
+                                                    mean=mean,
+                                                    volatility=volatility)
 
     stats = pd.DataFrame({
         "Mean": scenarios.mean(axis=1),

@@ -6,7 +6,7 @@ from charting import (
     get_invested_withdrawn_figure,
     get_stats_figure,
 )
-from tools import HistoricalData, compute_portfolio_stats, load_config
+from tools import HistoricalData, load_config, simulate_and_stats
 
 config = load_config()
 
@@ -75,7 +75,6 @@ with column_2:
 
 hist_data = HistoricalData(config.hist_returns_path, start_date.isoformat())
 
-# TODO: remove leverage
 with st.expander("Advanced settings"):
     adv_col_1, adv_col_2 = st.columns(2)
     with adv_col_1:
@@ -92,7 +91,7 @@ with st.expander("Advanced settings"):
                                      step=0.01,
                                      help="Volatility of yearly returns")
 
-portfolio_stats = compute_portfolio_stats(hist_values=hist_data.series,
+portfolio_stats = simulate_and_stats(hist_values=hist_data.series,
                                           start_value=start_value,
                                           years_before_ret=years_before_retire,
                                           years_after_ret=years_after_retire,
@@ -144,6 +143,7 @@ At the first stage (before retirement), it's assumed that you invest a constant 
 At the second stage (after retirement), it's assumed that you only withdraw from your
 investment account.
 
+#### Data used
 The simulation is based on historical US **equity data** from
 [Shiller's website](http://www.econ.yale.edu/~shiller/data.htm).
 It assumes that your investment portfolio consists of 100% US equity stocks (S&P 500).
@@ -153,16 +153,42 @@ This is possible because Shiller's data contains both real and nominal returns.
 It's convenient, as we can view our portfolio value in today's money without
 needing to adjust for inflation.
 
+#### Taxes and transaction costs
 Please note that taxes and fund fees are not taken into account.
 
-We use bootstrapping to simulate 100,000 scenarios.
+#### Negative portfolio values
+It can happen that portfolio values become negative.
+This means that we have withdrawn all available money from our account and started borrowing.
+It is implicitly assumed that we borrow at a (stochastic) rate that equals equity returns.
+This is currently not configurable, and negative values should be thought of as going bankrupt,
+i.e., a scenario we want to avoid.
+
+#### Simulation methodology
+We use bootstrapping to simulate 100,000 time series scenarios.
+We denote this 100,000 values at time $t$ as $r(t)$, i.e. $r(t)$ is a random variable.
+Each scenario represents a possible sequence of future yearly real returns.
 By default, we use data from the post-World War II period (starting from 1949-12-31).
 We assume that yearly returns are i.i.d. (but not (log-)normal).
 Data from {hist_data.first_date.year} to 2023 ({hist_data.num_timesteps} datapoints)
 has an average yearly return of {hist_data.mean * 100:.1f}% and
 volatility of {hist_data.volatility * 100:.1f}% (skewness {hist_data.skewness:.1f}).
+""")
 
-The main chart below displays mean and median portfolio values.
+st.markdown(r"""
+Portfolio values are simulated as
+$$
+V(t) =
+\begin{cases}
+V(t-1) \times (1 + r(t)) + \text{installment} &\text{if} \quad t \leq \text{years before retirement} \\
+V(t-1) \times (1 + r(t)) - \text{withdrawl} &\text{if} \quad t > \text{years before retirement}, \\
+\end{cases}
+$$
+where $t=1,...,T$ with $T=\text{years before retirement} + \text{years before retirement}$.
+$V(0)$ is set to a starting amount of wealth. $V(t)$ is random because $r(t)$ is a random variable
+(bootstrapped from historical data).
+
+#### Mean vs. Median
+The main chart displays mean and median portfolio values.
 Mean and median diverge significantly because our portfolio value becomes right-skewed.
 It's best to use the median over the mean for this kind of long-term financial planning.
 It tells you the minimum amount of money you should expect to have in a given year
