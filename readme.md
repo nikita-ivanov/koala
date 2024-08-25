@@ -1,8 +1,8 @@
 A personal website showcasing some of the private projects.
-View currently deployed version at https://nivanov.dev.
+Deployed at https://nivanov.dev.
 
 Currently included projects:
-- neural machine translator ([repo link](https://github.com/nikita-ivanov/neural_translation))
+- [neural machine translator](https://nivanov.dev/translator) ([repo link](https://github.com/nikita-ivanov/neural_translation))
+- [financial calculator](https://nivanov.dev/finance)
 
-Scheduled projects:
-- financial simulator
+It is based on the `streamlit` python framework.
